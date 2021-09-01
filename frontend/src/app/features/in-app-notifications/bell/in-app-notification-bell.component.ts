@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
 } from '@angular/core';
 import { OpModalService } from 'core-app/shared/components/modal/modal.service';
 import {

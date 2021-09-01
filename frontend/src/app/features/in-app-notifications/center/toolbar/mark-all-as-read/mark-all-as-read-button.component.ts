@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { I18nService } from 'core-app/core/i18n/i18n.service';
 import { Actions } from '@datorama/akita-ng-effects';
-import { IanCenterService } from 'core-app/features/in-app-notifications/center/store/state/state/ian-center.service';
+import { IanCenterService } from 'core-app/features/in-app-notifications/center/state/ian-center.service';
 
 @Component({
   selector: 'op-mark-all-as-read-button',

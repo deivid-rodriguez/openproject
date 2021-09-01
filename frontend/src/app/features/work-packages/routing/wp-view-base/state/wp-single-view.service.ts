@@ -10,11 +10,11 @@ import {
 import {
   selectCollection$,
   selectCollectionEntities$,
-} from 'core-app/core/global-store/collection-store.type';
-import { InAppNotification } from 'core-app/core/global-store/in-app-notifications/in-app-notification.model';
-import { InAppNotificationsService } from 'core-app/core/global-store/in-app-notifications/in-app-notifications.service';
+} from 'core-app/core/state/collection-store.type';
+import { InAppNotification } from 'core-app/core/state/in-app-notifications/in-app-notification.model';
+import { InAppNotificationsService } from 'core-app/core/state/in-app-notifications/in-app-notifications.service';
 import { ApiV3ListFilter } from 'core-app/core/apiv3/paths/apiv3-list-resource.interface';
-import { markNotificationsAsRead } from 'core-app/core/global-store/in-app-notifications/in-app-notifications.actions';
+import { markNotificationsAsRead } from 'core-app/core/state/in-app-notifications/in-app-notifications.actions';
 import { Actions } from '@datorama/akita-ng-effects';
 
 @Injectable()
@@ -67,7 +67,10 @@ export class WpSingleViewService {
       }
     ));
 
-    this.ianService.fetchNotifications({ filters });
+    this
+      .ianService
+      .fetchNotifications({ filters })
+      .subscribe();
   }
 
   markAllAsRead():void {

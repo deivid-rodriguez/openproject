@@ -106,8 +106,6 @@ export function initializeServices(injector:Injector) {
     BrowserModule,
     // Commons
     OPSharedModule,
-    // Global effects
-    AkitaNgEffectsModule.forRoot(),
     // Router module
     OpenprojectRouterModule,
     // Hal Module

@@ -16,8 +16,6 @@ import { InAppNotificationStatusComponent } from './entry/status/in-app-notifica
 import { NotificationSettingsButtonComponent } from './center/toolbar/settings/notification-settings-button.component';
 import { ActivateFacetButtonComponent } from './center/toolbar/facet/activate-facet-button.component';
 import { MarkAllAsReadButtonComponent } from './center/toolbar/mark-all-as-read/mark-all-as-read-button.component';
-import { IanBellEffects } from 'core-app/features/in-app-notifications/bell/state/ian-bell.effects';
-import { AkitaNgEffectsModule } from '@datorama/akita-ng-effects';
 
 @NgModule({
   declarations: [
@@ -42,8 +40,6 @@ import { AkitaNgEffectsModule } from '@datorama/akita-ng-effects';
     OpenprojectPrincipalRenderingModule,
     OpenprojectWorkPackagesModule,
     ScrollingModule,
-    AkitaNgEffectsModule.forFeature([IanBellEffects]),
-
   ],
 })
 export class OpenProjectInAppNotificationsModule {

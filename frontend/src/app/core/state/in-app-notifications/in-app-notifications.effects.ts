@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Actions, Effect, ofType } from '@datorama/akita-ng-effects';
 import { tap } from 'rxjs/operators';
-import { InAppNotificationsService } from 'core-app/core/global-store/in-app-notifications/in-app-notifications.service';
+import { InAppNotificationsService } from 'core-app/core/state/in-app-notifications/in-app-notifications.service';
 import {
   markNotificationsAsRead,
   notificationsMarkedRead,
-} from 'core-app/core/global-store/in-app-notifications/in-app-notifications.actions';
+} from 'core-app/core/state/in-app-notifications/in-app-notifications.actions';
 
 @Injectable()
 export class InAppNotificationsEffects {

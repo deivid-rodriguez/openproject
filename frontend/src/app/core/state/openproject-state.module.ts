@@ -26,14 +26,23 @@
 // See docs/COPYRIGHT.rdoc for more details.
 //++
 
-import { NgModule } from '@angular/core';
+import {
+  Injector,
+  NgModule,
+} from '@angular/core';
 import { AkitaNgEffectsModule } from '@datorama/akita-ng-effects';
-import { InAppNotificationsEffects } from 'core-app/core/global-store/in-app-notifications/in-app-notifications.effects';
 
 @NgModule({
   imports: [
-    AkitaNgEffectsModule.forFeature([InAppNotificationsEffects]),
+    // Global effects
+    AkitaNgEffectsModule.forRoot(),
   ],
 })
-export class OpenprojectGlobalStoreModule {
+export class OpenProjectStateModule {
+  /** Expose the injector for the effect decorator */
+  static injector:Injector;
+
+  constructor(injector:Injector) {
+    OpenProjectStateModule.injector = injector;
+  }
 }

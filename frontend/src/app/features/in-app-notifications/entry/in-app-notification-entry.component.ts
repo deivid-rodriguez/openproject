@@ -28,8 +28,8 @@ import { BackRouteOptions } from 'core-app/features/work-packages/components/bac
 import {
   InAppNotification,
   InAppNotificationDetail,
-} from 'core-app/core/global-store/in-app-notifications/in-app-notification.model';
-import { IanCenterService } from 'core-app/features/in-app-notifications/center/store/state/state/ian-center.service';
+} from 'core-app/core/state/in-app-notifications/in-app-notification.model';
+import { IanCenterService } from 'core-app/features/in-app-notifications/center/state/ian-center.service';
 
 @Component({
   selector: 'op-in-app-notification-entry',

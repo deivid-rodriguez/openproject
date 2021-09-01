@@ -12,7 +12,7 @@ import { ActivateFacetButtonComponent } from 'core-app/features/in-app-notificat
 import { MarkAllAsReadButtonComponent } from 'core-app/features/in-app-notifications/center/toolbar/mark-all-as-read/mark-all-as-read-button.component';
 import { UntilDestroyedMixin } from 'core-app/shared/helpers/angular/until-destroyed.mixin';
 import { BackRoutingService } from 'core-app/features/work-packages/components/back-routing/back-routing.service';
-import { IanCenterService } from 'core-app/features/in-app-notifications/center/store/state/state/ian-center.service';
+import { IanCenterService } from 'core-app/features/in-app-notifications/center/state/ian-center.service';
 
 @Component({
   templateUrl: '../../work-packages/routing/partitioned-query-space-page/partitioned-query-space-page.component.html',

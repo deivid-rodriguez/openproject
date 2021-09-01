@@ -13,8 +13,8 @@ import {
 import { StateService } from '@uirouter/angular';
 import { WorkPackageResource } from 'core-app/features/hal/resources/work-package-resource';
 import { UIRouterGlobals } from '@uirouter/core';
-import { IanCenterService } from 'core-app/features/in-app-notifications/center/store/state/state/ian-center.service';
-import { NOTIFICATIONS_MAX_SIZE } from 'core-app/core/global-store/in-app-notifications/in-app-notification.model';
+import { IanCenterService } from 'core-app/features/in-app-notifications/center/state/ian-center.service';
+import { NOTIFICATIONS_MAX_SIZE } from 'core-app/core/state/in-app-notifications/in-app-notification.model';
 
 @Component({
   selector: 'op-in-app-notification-center',

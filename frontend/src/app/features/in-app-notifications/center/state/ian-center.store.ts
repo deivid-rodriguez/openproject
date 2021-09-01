@@ -1,6 +1,6 @@
 import { Store, StoreConfig } from '@datorama/akita';
 import { ApiV3ListFilter } from 'core-app/core/apiv3/paths/apiv3-list-resource.interface';
-import { NOTIFICATIONS_MAX_SIZE } from 'core-app/core/global-store/in-app-notifications/in-app-notification.model';
+import { NOTIFICATIONS_MAX_SIZE } from 'core-app/core/state/in-app-notifications/in-app-notification.model';
 
 export interface IanCenterState {
   params:{
