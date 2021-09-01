@@ -1,14 +1,11 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { I18nService } from 'core-app/core/i18n/i18n.service';
-import { InAppNotificationsQuery } from 'core-app/features/in-app-notifications/store/in-app-notifications.query';
-import { InAppNotificationsService } from 'core-app/features/in-app-notifications/store/in-app-notifications.service';
+import { Actions } from '@datorama/akita-ng-effects';
+import { IanCenterService } from 'core-app/features/in-app-notifications/center/store/state/state/ian-center.service';
 import {
   IAN_FACET_FILTERS,
   InAppNotificationFacet,
-  InAppNotificationsStore,
-} from 'core-app/features/in-app-notifications/store/in-app-notifications.store';
-import { Actions } from '@datorama/akita-ng-effects';
-import { setNotificationCenterFacet } from 'core-app/features/in-app-notifications/store/in-app-notifications.actions';
+} from 'core-app/features/in-app-notifications/center/store/state/state/ian-center.store';
 
 @Component({
   selector: 'op-activate-facet',
@@ -25,21 +22,16 @@ export class ActivateFacetButtonComponent {
 
   availableFacets = Object.keys(IAN_FACET_FILTERS);
 
-  activeFacet$ = this
-    .ianQuery
-    .select((state) => state.center?.activeFacet);
+  activeFacet$ = this.storeService.activeFacet$;
 
   constructor(
     private I18n:I18nService,
-    private ianStore:InAppNotificationsStore,
-    private ianQuery:InAppNotificationsQuery,
+    private storeService:IanCenterService,
     private actions$:Actions,
   ) {
   }
 
   activateFacet(facet:InAppNotificationFacet):void {
-    this
-      .actions$
-      .dispatch(setNotificationCenterFacet({ facet }));
+    this.storeService.setFacet(facet);
   }
 }

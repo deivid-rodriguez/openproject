@@ -6,20 +6,15 @@ import {
   OnInit,
 } from '@angular/core';
 import { I18nService } from 'core-app/core/i18n/i18n.service';
-import { NOTIFICATIONS_MAX_SIZE } from 'core-app/features/in-app-notifications/store/in-app-notification.model';
-import { filter, map } from 'rxjs/operators';
+import {
+  filter,
+  map,
+} from 'rxjs/operators';
 import { StateService } from '@uirouter/angular';
-import { InAppNotificationsQuery } from 'core-app/features/in-app-notifications/store/in-app-notifications.query';
-import { InAppNotificationsService } from 'core-app/features/in-app-notifications/store/in-app-notifications.service';
 import { WorkPackageResource } from 'core-app/features/hal/resources/work-package-resource';
 import { UIRouterGlobals } from '@uirouter/core';
-import {
-  IAN_FACET_FILTERS,
-  InAppNotificationsCenterState,
-  InAppNotificationsStore,
-} from 'core-app/features/in-app-notifications/store/in-app-notifications.store';
-import { setNotificationCenterFacet } from 'core-app/features/in-app-notifications/store/in-app-notifications.actions';
-import { Actions } from '@datorama/akita-ng-effects';
+import { IanCenterService } from 'core-app/features/in-app-notifications/center/store/state/state/ian-center.service';
+import { NOTIFICATIONS_MAX_SIZE } from 'core-app/core/global-store/in-app-notifications/in-app-notification.model';
 
 @Component({
   selector: 'op-in-app-notification-center',
@@ -28,11 +23,12 @@ import { Actions } from '@datorama/akita-ng-effects';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InAppNotificationCenterComponent implements OnInit {
-  activeFacet$ = this.ianQuery.activeFacet$('center');
+  maxSize = NOTIFICATIONS_MAX_SIZE;
+
+  activeFacet$ = this.storeService.activeFacet$;
 
   notifications$ = this
-    .ianService
-    .query
+    .storeService
     .aggregatedCenterNotifications$
     .pipe(
       map((items) => Object.values(items)),
@@ -45,8 +41,11 @@ export class InAppNotificationCenterComponent implements OnInit {
     );
 
   hasMoreThanPageSize$ = this
-    .ianQuery
-    .select((state) => !!state.center && state.center.notLoaded > 0);
+    .storeService
+    .notLoaded$
+    .pipe(
+      map((notLoaded) => notLoaded > 0),
+    );
 
   noResultText$ = this
     .activeFacet$
@@ -55,18 +54,15 @@ export class InAppNotificationCenterComponent implements OnInit {
     );
 
   totalCountWarning$ = this
-    .ianService
-    .query
-    .select((state) => state.center?.notLoaded)
+    .storeService
+    .notLoaded$
     .pipe(
-      filter((notLoaded) => !!notLoaded && notLoaded > 0),
+      filter((notLoaded) => notLoaded > 0),
       map((notLoaded:number) => this.I18n.t(
         'js.notifications.center.total_count_warning',
-        { newest_count: NOTIFICATIONS_MAX_SIZE, more_count: notLoaded },
+        { newest_count: this.maxSize, more_count: notLoaded },
       )),
     );
-
-  maxSize = NOTIFICATIONS_MAX_SIZE;
 
   originalOrder = ():number => 0;
 
@@ -83,18 +79,13 @@ export class InAppNotificationCenterComponent implements OnInit {
     readonly cdRef:ChangeDetectorRef,
     readonly elementRef:ElementRef,
     readonly I18n:I18nService,
-    readonly ianStore:InAppNotificationsStore,
-    readonly ianService:InAppNotificationsService,
-    readonly ianQuery:InAppNotificationsQuery,
+    readonly storeService:IanCenterService,
     readonly uiRouterGlobals:UIRouterGlobals,
     readonly state:StateService,
-    readonly actions$:Actions,
   ) { }
 
   ngOnInit():void {
-    this.actions$.dispatch(
-      setNotificationCenterFacet({ facet: 'unread' }),
-    );
+    this.storeService.setFacet('unread');
   }
 
   openSplitView($event:WorkPackageResource):void {

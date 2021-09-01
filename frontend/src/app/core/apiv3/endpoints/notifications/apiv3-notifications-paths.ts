@@ -34,12 +34,12 @@ import {
   ApiV3ListFilter,
   listParamsString,
 } from 'core-app/core/apiv3/paths/apiv3-list-resource.interface';
-import { InAppNotification } from 'core-app/features/in-app-notifications/store/in-app-notification.model';
 import { Apiv3NotificationPaths } from 'core-app/core/apiv3/endpoints/notifications/apiv3-notification-paths';
 import { InjectField } from 'core-app/shared/helpers/angular/inject-field.decorator';
 import { HttpClient } from '@angular/common/http';
 import { IHALCollection } from 'core-app/core/apiv3/types/hal-collection.type';
 import { ID } from '@datorama/akita';
+import { InAppNotification } from 'core-app/core/global-store/in-app-notifications/in-app-notification.model';
 
 export class Apiv3NotificationsPaths
   extends APIv3ResourceCollection<InAppNotification, Apiv3NotificationPaths> {

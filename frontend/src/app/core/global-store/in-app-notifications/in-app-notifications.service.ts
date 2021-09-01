@@ -1,28 +1,31 @@
 import { Injectable } from '@angular/core';
 import {
-  switchMap,
-  take,
-  tap,
   catchError,
+  publishReplay,
+  tap,
 } from 'rxjs/operators';
-import { Subscription, Observable } from 'rxjs';
-import { applyTransaction, ID, setLoading } from '@datorama/akita';
+import { Observable } from 'rxjs';
+import { applyTransaction, ID } from '@datorama/akita';
 import { APIV3Service } from 'core-app/core/apiv3/api-v3.service';
 import { NotificationsService } from 'core-app/shared/components/notifications/notifications.service';
-import { InAppNotificationsQuery } from 'core-app/features/in-app-notifications/store/in-app-notifications.query';
 import { HalResource } from 'core-app/features/hal/resources/hal-resource';
 import { InAppNotificationsStore } from './in-app-notifications.store';
 import { InAppNotification } from './in-app-notification.model';
 import { IHALCollection } from 'core-app/core/apiv3/types/hal-collection.type';
 import { HttpClient } from '@angular/common/http';
-import { markNotificationsAsRead } from 'core-app/features/in-app-notifications/store/in-app-notifications.actions';
 import { Actions } from '@datorama/akita-ng-effects';
+import { InAppNotificationsQuery } from 'core-app/core/global-store/in-app-notifications/in-app-notifications.query';
+import { take } from 'rxjs/internal/operators/take';
+import { ApiV3ListFilter, Apiv3ListParameters } from 'core-app/core/apiv3/paths/apiv3-list-resource.interface';
+import { collectionKey } from 'core-app/core/global-store/collection-store.type';
 
 @Injectable({ providedIn: 'root' })
 export class InAppNotificationsService {
+  protected store = new InAppNotificationsStore();
+
+  readonly query = new InAppNotificationsQuery(this.store);
+
   constructor(
-    private store:InAppNotificationsStore,
-    public query:InAppNotificationsQuery,
     private http:HttpClient,
     private apiV3Service:APIV3Service,
     private notifications:NotificationsService,
@@ -30,7 +33,9 @@ export class InAppNotificationsService {
   ) {
   }
 
-  fetchNotifications(collectionURL:string):Observable<IHALCollection<InAppNotification>> {
+  fetchNotifications(params:Apiv3ListParameters):Observable<IHALCollection<InAppNotification>> {
+    const collectionURL = collectionKey(params);
+
     return this
       .http
       .get<IHALCollection<InAppNotification>>(this.notificationsPath + collectionURL)
@@ -54,6 +59,7 @@ export class InAppNotificationsService {
           this.notifications.addError(error);
           throw error;
         }),
+        publishReplay(1),
       );
   }
 
@@ -61,18 +67,16 @@ export class InAppNotificationsService {
     this.store.update(id, inAppNotification);
   }
 
-  markAllAsRead(store:'activity'|'center') {
-    this
-      .query
-      .collection$(store)
+  markAsRead(notifications:ID[]):Observable<unknown> {
+    return this
+      .apiV3Service
+      .notifications
+      .markRead(notifications)
       .pipe(
-        take(1),
-      )
-      .subscribe((collection) => {
-        this.actions$.dispatch(
-          markNotificationsAsRead({ store, notifications: collection.ids }),
-        );
-      });
+        tap(() => {
+          this.store.update(notifications, { readIAN: true });
+        }),
+      );
   }
 
   private get notificationsPath():string {
@@ -93,4 +97,5 @@ export class InAppNotificationsService {
       .work_packages
       .requireAll(_.compact(wpIds));
   }
+
 }

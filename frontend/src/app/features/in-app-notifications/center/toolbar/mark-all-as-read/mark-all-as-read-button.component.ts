@@ -1,9 +1,7 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { I18nService } from 'core-app/core/i18n/i18n.service';
-import { InAppNotificationsService } from 'core-app/features/in-app-notifications/store/in-app-notifications.service';
 import { Actions } from '@datorama/akita-ng-effects';
-import { markNotificationsAsRead } from 'core-app/features/in-app-notifications/store/in-app-notifications.actions';
-import { take } from 'rxjs/internal/operators/take';
+import { IanCenterService } from 'core-app/features/in-app-notifications/center/store/state/state/ian-center.service';
 
 @Component({
   selector: 'op-mark-all-as-read-button',
@@ -18,13 +16,12 @@ export class MarkAllAsReadButtonComponent {
 
   constructor(
     private I18n:I18nService,
-    private ianService:InAppNotificationsService,
+    private storeService:IanCenterService,
     private actions$:Actions,
   ) {
   }
 
   markAllRead():void {
-    // was ist meine aktuelle Collection von center?
-    this.ianService.markAllAsRead('center');
+    this.storeService.markAllAsRead();
   }
 }

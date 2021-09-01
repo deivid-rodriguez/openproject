@@ -41,16 +41,9 @@ import { InjectField } from 'core-app/shared/helpers/angular/inject-field.decora
 import { UntilDestroyedMixin } from 'core-app/shared/helpers/angular/until-destroyed.mixin';
 import { APIV3Service } from 'core-app/core/apiv3/api-v3.service';
 import { HookService } from 'core-app/features/plugins/hook-service';
-import { ApiV3ListFilter } from 'core-app/core/apiv3/paths/apiv3-list-resource.interface';
-import { take } from 'rxjs/internal/operators/take';
-import { InAppNotificationsService } from 'core-app/features/in-app-notifications/store/in-app-notifications.service';
-import {
-  InAppNotificationsStore,
-  notificationCollection,
-} from 'core-app/features/in-app-notifications/store/in-app-notifications.store';
-import { Observable } from 'rxjs';
 import { Actions } from '@datorama/akita-ng-effects';
-import { setNotificationFilters } from 'core-app/features/in-app-notifications/store/in-app-notifications.actions';
+import { WpSingleViewService } from 'core-app/features/work-packages/routing/wp-view-base/state/wp-single-view.service';
+import { Observable } from 'rxjs';
 
 export class WorkPackageSingleViewBase extends UntilDestroyedMixin {
   @InjectField() states:States;
@@ -77,11 +70,9 @@ export class WorkPackageSingleViewBase extends UntilDestroyedMixin {
 
   @InjectField() readonly hooks:HookService;
 
-  @InjectField() readonly ianService:InAppNotificationsService;
-
-  @InjectField() readonly ianStore:InAppNotificationsStore;
-
   @InjectField() readonly actions$:Actions;
+
+  @InjectField() readonly storeService:WpSingleViewService;
 
   // Static texts
   public text:any = {};
@@ -94,6 +85,8 @@ export class WorkPackageSingleViewBase extends UntilDestroyedMixin {
   public focusAnchorLabel:string;
 
   public showStaticPagePath:string;
+
+  public displayNotificationsButton$:Observable<boolean>;
 
   constructor(public injector:Injector,
     protected workPackageId:string) {
@@ -148,15 +141,8 @@ export class WorkPackageSingleViewBase extends UntilDestroyedMixin {
         this.cdRef.detectChanges();
       });
 
-    const filters:ApiV3ListFilter[] = [
-      ['readIAN', '=', false],
-      ['resourceId', '=', [this.workPackage.id!]],
-      ['resourceType', '=', ['WorkPackage']],
-    ];
-
-    this
-      .actions$
-      .dispatch(setNotificationFilters({ filters, store: 'activity' }));
+    this.displayNotificationsButton$ = this.storeService.hasNotifications$;
+    this.storeService.setFilters(this.workPackage.id as string);
 
     // Set authorisation data
     this.authorisationService.initModelAuth('work_package', this.workPackage.$links);
