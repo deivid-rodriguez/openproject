@@ -1,9 +1,7 @@
-import {
-  Component, ChangeDetectionStrategy, Input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { I18nService } from 'core-app/core/i18n/i18n.service';
-import { InAppNotificationsService } from 'core-app/features/in-app-notifications/store/in-app-notifications.service';
 import { WorkPackageResource } from 'core-app/features/hal/resources/work-package-resource';
+import { InAppNotificationsService } from 'core-app/features/in-app-notifications/store/in-app-notifications.service';
 
 @Component({
   selector: 'op-work-package-mark-notification-button',
@@ -26,6 +24,6 @@ export class WorkPackageMarkNotificationButtonComponent {
   }
 
   markAllBelongingNotificationsAsRead():void {
-    this.ianService.markAllRead();
+    this.ianService.markAllAsRead('activity');
   }
 }

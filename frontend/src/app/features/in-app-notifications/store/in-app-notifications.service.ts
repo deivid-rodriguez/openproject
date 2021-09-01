@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import {
-  debounceTime,
   switchMap,
   take,
   tap,
@@ -8,7 +7,6 @@ import {
 } from 'rxjs/operators';
 import { Subscription, Observable } from 'rxjs';
 import { applyTransaction, ID, setLoading } from '@datorama/akita';
-import { ApiV3ListFilter } from 'core-app/core/apiv3/paths/apiv3-list-resource.interface';
 import { APIV3Service } from 'core-app/core/apiv3/api-v3.service';
 import { NotificationsService } from 'core-app/shared/components/notifications/notifications.service';
 import { InAppNotificationsQuery } from 'core-app/features/in-app-notifications/store/in-app-notifications.query';
@@ -16,46 +14,41 @@ import { HalResource } from 'core-app/features/hal/resources/hal-resource';
 import { InAppNotificationsStore } from './in-app-notifications.store';
 import { InAppNotification } from './in-app-notification.model';
 import { IHALCollection } from 'core-app/core/apiv3/types/hal-collection.type';
+import { HttpClient } from '@angular/common/http';
+import { markNotificationsAsRead } from 'core-app/features/in-app-notifications/store/in-app-notifications.actions';
+import { Actions } from '@datorama/akita-ng-effects';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class InAppNotificationsService {
   constructor(
     private store:InAppNotificationsStore,
     public query:InAppNotificationsQuery,
+    private http:HttpClient,
     private apiV3Service:APIV3Service,
     private notifications:NotificationsService,
+    private actions$:Actions,
   ) {
-    this.query.activeFetchParameters$
-      .pipe(
-        debounceTime(0),
-        switchMap(() => this.fetchNotifications()),
-      ).subscribe();
   }
 
-  fetchNotifications():Observable<IHALCollection<InAppNotification>> {
-    this.store.setLoading(true);
-
-    const {
-      activeFacet,
-      activeFilters,
-      pageSize,
-    } = this.query.getValue();
-
+  fetchNotifications(collectionURL:string):Observable<IHALCollection<InAppNotification>> {
     return this
-      .apiV3Service
-      .notifications
-      .facet(activeFacet, {
-        pageSize,
-        filters: activeFilters,
-      })
+      .http
+      .get<IHALCollection<InAppNotification>>(this.notificationsPath + collectionURL)
       .pipe(
         tap((events) => {
-          this.sideLoadInvolvedWorkPackages(events._embedded.elements);
           applyTransaction(() => {
-            this.store.set(events._embedded.elements);
-            this.store.update({ notLoaded: events.total - events.count });
+            this.store.add(events._embedded.elements);
+            this.store.update(({ collections }) => (
+              {
+                collections: {
+                  ...collections,
+                  [collectionURL]: {
+                    ids: events._embedded.elements.map((el) => el.id),
+                  },
+                },
+              }
+            ));
           });
-          this.store.setLoading(false);
         }),
         catchError((error) => {
           this.notifications.addError(error);
@@ -68,52 +61,25 @@ export class InAppNotificationsService {
     this.store.update(id, inAppNotification);
   }
 
-  setPageSize(pageSize:number):void {
-    this.store.update((state) => ({ ...state, pageSize }));
-  }
-
-  setActiveFacet(facet:string):void {
-    this.store.update((state) => ({ ...state, activeFacet: facet }));
-  }
-
-  setActiveFilters(filters:ApiV3ListFilter[]):void {
-    this.store.update((state) => ({ ...state, activeFilters: filters }));
-  }
-
-  markAllRead():Subscription {
-    return this.query
-      .unread$
+  markAllAsRead(store:'activity'|'center') {
+    this
+      .query
+      .collection$(store)
       .pipe(
         take(1),
-        switchMap((events) => this.apiV3Service.notifications.markRead(events.map((event) => event.id))),
-        setLoading(this.store),
       )
-      .subscribe(() => {
-        applyTransaction(() => {
-          this.store.update(null, { readIAN: true });
-          this.store.update({ unreadCount: 0 });
-        });
+      .subscribe((collection) => {
+        this.actions$.dispatch(
+          markNotificationsAsRead({ store, notifications: collection.ids }),
+        );
       });
   }
 
-  markAsRead(notifications:InAppNotification[], keep = false):Subscription {
-    const ids = notifications.map((n) => n.id);
-
+  private get notificationsPath():string {
     return this
       .apiV3Service
       .notifications
-      .markRead(ids)
-      .pipe(
-        setLoading(this.store),
-      )
-      .subscribe(() => {
-        applyTransaction(() => {
-          this.store.update(ids, { readIAN: true, keep });
-          this.store.update(
-            ({ unreadCount }) => ({ unreadCount: unreadCount - ids.length }),
-          );
-        });
-      });
+      .path;
   }
 
   private sideLoadInvolvedWorkPackages(elements:InAppNotification[]):void {

@@ -67,6 +67,10 @@ export class Apiv3NotificationsPaths
       .get<IHALCollection<InAppNotification>>(this.path + listParamsString(params));
   }
 
+  public listPath(params?:Apiv3ListParameters):string {
+    return this.path + listParamsString(params);
+  }
+
   /**
    * Load unread events
    */

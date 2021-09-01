@@ -45,9 +45,6 @@ import { WorkPackageNotificationService } from 'core-app/features/work-packages/
   host: { class: 'work-packages-page--ui-view' },
   providers: [
     { provide: HalResourceNotificationService, useExisting: WorkPackageNotificationService },
-    InAppNotificationsService,
-    InAppNotificationsStore,
-    InAppNotificationsQuery,
   ],
 })
 export class WorkPackagesFullViewComponent extends WorkPackageSingleViewBase implements OnInit {
@@ -56,7 +53,7 @@ export class WorkPackagesFullViewComponent extends WorkPackageSingleViewBase imp
 
   public displayWatchButton:boolean;
 
-  public displayNotificationsButton$:Observable<boolean> = this.ianService.query.hasUnread$;
+  public displayNotificationsButton$:Observable<boolean> = this.ianService.query.hasFacetCount$('activity');
 
   public watchers:any;
 
@@ -88,14 +85,6 @@ export class WorkPackagesFullViewComponent extends WorkPackageSingleViewBase imp
 
     // Set Focused WP
     this.wpTableFocus.updateFocus(this.workPackage.id!);
-
-    if (this.workPackage.id) {
-      this.ianService.setActiveFacet('unread');
-      this.ianService.setActiveFilters([
-        ['resourceId', '=', [this.workPackage.id]],
-        ['resourceType', '=', ['WorkPackage']],
-      ]);
-    }
 
     this.setWorkPackageScopeProperties(this.workPackage);
   }

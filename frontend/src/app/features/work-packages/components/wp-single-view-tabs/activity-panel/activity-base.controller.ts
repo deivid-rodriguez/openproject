@@ -95,12 +95,6 @@ export class ActivityPanelBaseController extends UntilDestroyedMixin implements 
           this.cdRef.detectChanges();
         });
       });
-
-    this.ianService.setActiveFacet('unread');
-    this.ianService.setActiveFilters([
-      ['resourceId', '=', [this.workPackageId]],
-      ['resourceType', '=', ['WorkPackage']],
-    ]);
   }
 
   protected updateActivities(activities:HalResource[]) {
@@ -136,7 +130,7 @@ export class ActivityPanelBaseController extends UntilDestroyedMixin implements 
     return this
       .ianService
       .query
-      .unread$
+      .faceted$('activity')
       .pipe(
         map((notifications) => !!notifications.find((notification) => notification._links.activity?.href === activityHref)),
       );

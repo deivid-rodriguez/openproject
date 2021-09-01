@@ -41,6 +41,16 @@ import { InjectField } from 'core-app/shared/helpers/angular/inject-field.decora
 import { UntilDestroyedMixin } from 'core-app/shared/helpers/angular/until-destroyed.mixin';
 import { APIV3Service } from 'core-app/core/apiv3/api-v3.service';
 import { HookService } from 'core-app/features/plugins/hook-service';
+import { ApiV3ListFilter } from 'core-app/core/apiv3/paths/apiv3-list-resource.interface';
+import { take } from 'rxjs/internal/operators/take';
+import { InAppNotificationsService } from 'core-app/features/in-app-notifications/store/in-app-notifications.service';
+import {
+  InAppNotificationsStore,
+  notificationCollection,
+} from 'core-app/features/in-app-notifications/store/in-app-notifications.store';
+import { Observable } from 'rxjs';
+import { Actions } from '@datorama/akita-ng-effects';
+import { setNotificationFilters } from 'core-app/features/in-app-notifications/store/in-app-notifications.actions';
 
 export class WorkPackageSingleViewBase extends UntilDestroyedMixin {
   @InjectField() states:States;
@@ -66,6 +76,12 @@ export class WorkPackageSingleViewBase extends UntilDestroyedMixin {
   @InjectField() readonly apiV3Service:APIV3Service;
 
   @InjectField() readonly hooks:HookService;
+
+  @InjectField() readonly ianService:InAppNotificationsService;
+
+  @InjectField() readonly ianStore:InAppNotificationsStore;
+
+  @InjectField() readonly actions$:Actions;
 
   // Static texts
   public text:any = {};
@@ -131,6 +147,16 @@ export class WorkPackageSingleViewBase extends UntilDestroyedMixin {
         this.projectIdentifier = this.workPackage.project.identifier;
         this.cdRef.detectChanges();
       });
+
+    const filters:ApiV3ListFilter[] = [
+      ['readIAN', '=', false],
+      ['resourceId', '=', [this.workPackage.id!]],
+      ['resourceType', '=', ['WorkPackage']],
+    ];
+
+    this
+      .actions$
+      .dispatch(setNotificationFilters({ filters, store: 'activity' }));
 
     // Set authorisation data
     this.authorisationService.initModelAuth('work_package', this.workPackage.$links);

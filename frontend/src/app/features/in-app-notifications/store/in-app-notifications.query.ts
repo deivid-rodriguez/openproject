@@ -1,74 +1,83 @@
 import { Injectable } from '@angular/core';
-import { QueryEntity } from '@datorama/akita';
-import { map, switchMap } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
+import { ID, QueryEntity } from '@datorama/akita';
+import { filter, map, switchMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import {
+  CollectionResponse,
+  InAppNotificationFacet,
   InAppNotificationsState,
   InAppNotificationsStore,
+  notificationCollection,
 } from './in-app-notifications.store';
 import { InAppNotification } from 'core-app/features/in-app-notifications/store/in-app-notification.model';
+import Collection = api.v3.Collection;
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class InAppNotificationsQuery extends QueryEntity<InAppNotificationsState> {
-  /** Select the active filter facet */
-  activeFacet$ = this.select('activeFacet');
-
-  activeFetchParameters$ = this.select(['activeFacet', 'pageSize', 'activeFilters']);
-
-  /** Select the active filter facet */
-  notLoaded$ = this.select('notLoaded');
-
-  /** Get the faceted items */
-  faceted$ = this.activeFacet$
-    .pipe(
-      switchMap((facet) => {
-        switch (facet) {
-          case 'unread':
-            return this.unreadOrKept$;
-          case 'all':
-            return this.selectAll();
-          default:
-            return throwError(new Error(`Invalid facet ${facet}`));
-        }
-      }),
-    );
-
-  /** Notifications grouped by resource */
-  aggregatedNotifications$:Observable<{ [key:string]:InAppNotification[] }> = this
-    .faceted$
+  aggregatedCenterNotifications$ = this
+    .faceted$('center')
     .pipe(
       map((notifications) => (
         _.groupBy(notifications, (notification) => notification._links.resource?.href || 'none')
       )),
     );
 
-  /** Get the unread items */
-  unread$ = this.selectAll({
-    filterBy: ({ readIAN }) => !readIAN,
-  });
-
   /** Get the number of unread items */
-  unreadCount$ = this.unread$.pipe(map((notifications) => notifications.length));
-
-  /** Do we have any unread items? */
-  hasUnread$ = this.unreadCount$.pipe(map((count) => count > 0));
-
-  /** Get all items that shall be kept in the notification center */
-  unreadOrKept$ = this.selectAll({
-    filterBy: ({ readIAN, keep }) => !readIAN || !!keep,
-  });
-
-  /** Do we have any notification that shall be visible the notification center? */
-  hasNotifications$ = this.selectCount().pipe(map((count) => count > 0));
-
-  /** Determine whether the pageSize is not sufficient to load all notifications */
-  hasMoreThanPageSize$ = this
-    .select()
-    .pipe(
-      map(({ notLoaded }) => notLoaded > 0),
-    );
+  unreadCount$ = this.select('totalUnread');
 
   constructor(protected store:InAppNotificationsStore) {
     super(store);
+  }
+
+  public activeFacet$(stream:'center'|'activity'):Observable<InAppNotificationFacet> {
+    return this
+      .select((state) => state[stream]?.activeFacet)
+      .pipe(
+        filter((facet:InAppNotificationFacet|undefined) => !!facet),
+      ) as Observable<InAppNotificationFacet>;
+  }
+
+  public collection$(stream:'center'|'activity'):Observable<CollectionResponse> {
+    return this
+      .select((state) => {
+        const filters = state[stream]?.filters;
+        if (filters) {
+          const collection = notificationCollection({ filters });
+          return state?.collections[collection];
+        }
+
+        return undefined;
+      })
+      .pipe(
+        filter((collection) => !!collection),
+      ) as Observable<CollectionResponse>;
+  }
+
+  public faceted$(stream:'center'|'activity'):Observable<InAppNotification[]> {
+    return this
+      .collection$(stream)
+      .pipe(
+        switchMap((collection:CollectionResponse) => (
+          this.selectAll({
+            filterBy: ({ id }) => collection.ids.includes(id),
+          })
+        )),
+      );
+  }
+
+  public facetedCount$(stream:'center'|'activity'):Observable<number> {
+    return this
+      .faceted$(stream)
+      .pipe(
+        map((elements) => elements.length),
+      );
+  }
+
+  public hasFacetCount$(stream:'center'|'activity'):Observable<boolean> {
+    return this
+      .facetedCount$(stream)
+      .pipe(
+        map((count) => count > 0),
+      );
   }
 }

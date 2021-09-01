@@ -82,6 +82,7 @@ import { LinkedPluginsModule } from 'core-app/features/plugins/linked-plugins.mo
 import { OpenProjectInAppNotificationsModule } from 'core-app/features/in-app-notifications/in-app-notifications.module';
 import { OpenProjectBackupService } from './core/backup/op-backup.service';
 import { OpenProjectDirectFileUploadService } from './core/file-upload/op-direct-file-upload.service';
+import { AkitaNgEffectsModule } from '@datorama/akita-ng-effects';
 
 export function initializeServices(injector:Injector) {
   return () => {
@@ -105,6 +106,8 @@ export function initializeServices(injector:Injector) {
     BrowserModule,
     // Commons
     OPSharedModule,
+    // Global effects
+    AkitaNgEffectsModule.forRoot(),
     // Router module
     OpenprojectRouterModule,
     // Hal Module

@@ -31,6 +31,8 @@ import { StateService } from '@uirouter/angular';
 import { InAppNotificationsQuery } from 'core-app/features/in-app-notifications/store/in-app-notifications.query';
 import { HalResource } from 'core-app/features/hal/resources/hal-resource';
 import { BackRouteOptions } from 'core-app/features/work-packages/components/back-routing/back-routing.service';
+import { markNotificationsAsRead } from 'core-app/features/in-app-notifications/store/in-app-notifications.actions';
+import { Actions } from '@datorama/akita-ng-effects';
 
 @Component({
   selector: 'op-in-app-notification-entry',
@@ -84,6 +86,7 @@ export class InAppNotificationEntryComponent implements OnInit {
     readonly I18n:I18nService,
     readonly ianService:InAppNotificationsService,
     readonly ianQuery:InAppNotificationsQuery,
+    readonly actions$:Actions,
     readonly timezoneService:TimezoneService,
     readonly pathHelper:PathHelperService,
     readonly state:StateService,
@@ -155,9 +158,9 @@ export class InAppNotificationEntryComponent implements OnInit {
   markAsRead(event:MouseEvent, notifications:InAppNotification[]):void {
     event.stopPropagation();
 
-    this
-      .ianService
-      .markAsRead(notifications);
+    this.actions$.dispatch(
+      markNotificationsAsRead({ store: 'activity', notifications: notifications.map((el) => el.id) }),
+    );
   }
 
   private buildActors() {
