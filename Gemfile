@@ -314,9 +314,11 @@ gem 'openproject-translations',
     git: 'https://github.com/opf/openproject-translations.git',
     branch: 'dev'
 
+
+eval_gemfile './Gemfile.modules'
+
 # Load Gemfile.local, Gemfile.plugins, plugins', and custom Gemfiles
-gemfiles = Dir.glob File.expand_path('{Gemfile.plugins,Gemfile.modules,Gemfile.local,lib/plugins/*/Gemfile}',
-                                     __dir__)
+gemfiles = Dir.glob File.expand_path('{Gemfile.plugins,Gemfile.local}', __dir__)
 gemfiles << ENV['CUSTOM_PLUGIN_GEMFILE'] unless ENV['CUSTOM_PLUGIN_GEMFILE'].nil?
 gemfiles.each do |file|
   # We use send to allow dependabot to function
