@@ -81,6 +81,7 @@
     "@fullcalendar/resource-common": "^5.10.1",
     "@fullcalendar/resource-timeline": "5.10.1",
     "@fullcalendar/timegrid": "5.10.1",
+    "@hotwired/turbo": "^7.1.0",
     "@kolkov/ngx-gallery": "^1.0.11",
     "@ng-select/ng-option-highlight": "0.0.5",
     "@ng-select/ng-select": "^4.0.4",

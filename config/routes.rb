@@ -576,9 +576,10 @@ OpenProject::Application.routes.draw do
 
   root to: 'account#login'
 
-  scope :notifications do
-    get '(/*state)', to: 'angular#notifications_layout', as: :notifications_center
-  end
+  resources :notifications, only: %i[index destroy new create]
+  # scope :notifications do
+  #   get '(/*state)', to: 'angular#notifications_layout', as: :notifications_center
+  # end
 
   # Routes for design related documentation and examples pages
   get '/design/spot', to: 'angular#empty_layout'
