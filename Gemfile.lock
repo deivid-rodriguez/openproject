@@ -458,7 +458,7 @@ GEM
       tzinfo
     eventmachine (1.2.7)
     eventmachine_httpserver (0.2.1)
-    excon (0.88.0)
+    excon (0.93.1)
     factory_bot (6.2.0)
       activesupport (>= 5.0.0)
     factory_bot_rails (6.2.0)
@@ -490,15 +490,14 @@ GEM
     fastimage (2.2.5)
     ffi (1.15.4)
     flamegraph (0.9.5)
-    fog-aws (3.12.0)
+    fog-aws (3.15.0)
       fog-core (~> 2.1)
       fog-json (~> 1.1)
       fog-xml (~> 0.1)
-      ipaddress (~> 0.8)
-    fog-core (2.2.4)
+    fog-core (2.3.0)
       builder
       excon (~> 0.71)
-      formatador (~> 0.2)
+      formatador (>= 0.2, < 2.0)
       mime-types
     fog-json (1.2.0)
       fog-core
@@ -506,7 +505,7 @@ GEM
     fog-xml (0.1.4)
       fog-core
       nokogiri (>= 1.5.11, < 2.0.0)
-    formatador (0.3.0)
+    formatador (1.1.0)
     friendly_id (5.4.2)
       activerecord (>= 4.0.0)
     fugit (1.5.2)
@@ -556,7 +555,6 @@ GEM
       ice_cube (~> 0.16)
     ice_cube (0.16.4)
     interception (0.5)
-    ipaddress (0.8.3)
     iso8601 (0.13.0)
     jmespath (1.4.0)
     json (2.6.1)
@@ -613,7 +611,7 @@ GEM
     method_source (1.0.0)
     mime-types (3.4.1)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2021.1115)
+    mime-types-data (3.2022.0105)
     mini_magick (4.11.0)
     mini_mime (1.1.2)
     mini_portile2 (2.6.1)
