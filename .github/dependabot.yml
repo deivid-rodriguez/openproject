@@ -1,11 +1,5 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/frontend"
-    schedule:
-      interval: "daily"
-    target-branch: "dev"
-    versioning-strategy: lockfile-only
   - package-ecosystem: "bundler"
     directory: "/"
     schedule:
